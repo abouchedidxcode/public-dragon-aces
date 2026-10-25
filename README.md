@@ -5,7 +5,7 @@ mountain island, a 1.65 km arena built around a giant castle: spit fireballs, ro
 barrel-roll out of the way. Rooms are topped up with AI dragons, so there is always a fight. You can also
 practise offline against bots.
 
-Built with three.js. The dragon is modelled and rigged in Blender from a Python script. The sky,
+Built with three.js. The dragons are generated in code when the game loads, with no model files. The sky,
 terrain textures and lighting come from Poly Haven HDRIs and scans (CC0).
 
 ## Make your own
@@ -234,7 +234,7 @@ client/js/    three.js client (bundled by esbuild into game.js + terrain-worker.
   render/       sky + height fog, chunked LOD terrain, forests, rocks and ruins, ocean, clouds, sky islands, the Citadel (castle*.js), dragon, combat effects (fx, vfx-*), trails, shrines
   game.js       local flight, weapons, interpolation of remote dragons, HUD feedback
 cloudflare/   server.js (room server, used by tools/serve.mjs) and build.mjs (static client build)
-tools/        build_dragon.py (Blender), prepare_assets.py (Poly Haven downloads), build_castle_textures.py, gen_vfx.py (flipbooks),
+tools/        prepare_assets.py (Poly Haven downloads), build_castle_textures.py, gen_vfx.py (flipbooks),
               serve.mjs, castle_shots.mjs, build_audio.py + audio_spec.json + loudness.py + audio_synth.py (sound build),
               audio_render.mjs + audio_harness.html + audio_analyze.py (offline mix renders and loudness numbers)
 ```
@@ -372,11 +372,11 @@ cannot enforce is a chilled human's own flight, which the client applies when to
   never shimmers. The fragment shader recomputes the wave normals, adds normal-map ripples, and shades with Fresnel
   reflection of the HDRI and of the cloud layers, a GGX sun glitter that widens with distance, sub-surface turquoise
   in the crests, foam where the surface folds and at the shore, turquoise shallows, mountain shadows and cloud shadows.
-- **Dragons:** one rigged mesh (37 bones, driven in code) with four breed looks. The skin is a physical
-  material over maps baked in Blender from a sculpted high-poly copy: tangent normals, AO, sculpt height, a
-  per-scale random id and colour masks (stripe bands, blotches, mottling) that each breed tints, so the same
-  hide reads as ember, frost, storm or venom. Eyes are wet glass balls with a veined iris and slit pupil. Wing
-  membranes have baked veins, ribs, mottling and freckles, a rolled edge, and glow when backlit. Each breed
+- **Dragons:** one rigged mesh (41 bones, generated and driven in code) with four breed looks. The skin is a
+  physical material over scale, plate and mottling detail generated on the GPU at load, with colour masks (stripe
+  bands, blotches, mottling) that each breed tints, so the same hide reads as ember, frost, storm or venom. Eyes
+  are wet glass balls with a veined iris and slit pupil. Wing membranes have generated veins, mottling, a rolled
+  edge, and glow when backlit. Each breed
   also has its own silhouette (see below) and shader tricks: magma in the scale grooves (ember), glittering
   ice crystals (frost), crawling lightning and iridescence (storm), a wet gloss and toxic glow (venom).
 - **The lens (`client/js/render/post.js`):** no EffectComposer. The scene renders once into a half-float target
@@ -516,49 +516,16 @@ python3 tools/build_audio.py     # -> client/assets/audio/*.mp3 + loudness.json 
 The outputs are committed, so you only need these to change them.
 
 ```bash
-pip install bpy==5.2.2           # Blender as a Python module (Python 3.13)
-python tools/build_dragon.py     # -> client/assets/dragon.glb + dragon_*.jpg (about 10 min on 4 cores)
 python tools/prepare_assets.py   # -> client/assets/sky.jpg, env.hdr, terrain textures (clouds and waves are procedural)
 python3 tools/build_world_textures.py      # -> world_cliffb / world_forest / world_ruin textures (Poly Haven)
 python3 tools/build_castle_textures.py     # -> castle_<material>_albedo.jpg / _nr.jpg / _h.jpg, six Poly Haven photoscans (CC0)
-python3 tools/build_world_assets.py trees rocks ruins crystals   # -> world_*.glb (numpy only, no Blender;
+python3 tools/build_world_assets.py trees rocks ruins crystals   # -> world_*.glb (numpy only;
                                            #    add --preview out.png for a software-rendered contact sheet)
 python3 tools/gen_vfx.py         # -> client/assets/vfx_fire/smoke/jet/shapes.png (numpy + Pillow only)
 ```
 
-`build_dragon.py` options for working on the model: `--no-bake` skips the sculpt and bake (seconds instead of
-minutes), `--only ember|frost|storm|venom` builds just one breed's extras, `--preview out.png` renders a Cycles
-preview and `--view x,y,z,tx,ty,tz,lens` sets its camera (several views separated by `;` write `out_0.png`,
-`out_1.png` and so on, Blender axes: +Y forward, +Z up). `tools/dragon_view.html` shows the exported GLB in
-three.js with the game's materials and lighting (`node tools/serve.mjs . 8090`, then open
-`http://127.0.0.1:8090/tools/dragon_view.html?breed=storm`; its header lists the query options).
-
-**The dragon model.** Everything is lofted in Python from elliptical cross-sections along a skeleton, then
-smoothed with a subdivision modifier and skinned to one armature:
-
-- `Body` (about 45k triangles) is shared by all breeds: skull with brow arches, nasal bridge, nostrils, cheek and
-  jaw muscles and a scalloped lip, lower jaw with chin, tongue and two rows of teeth, torso, neck, tail, limbs
-  with muscled thighs, knee spikes, scaled shins and clawed, knuckled toes folded back in the flight tuck, the wing arms and fingers. Spikes and scutes on the head have flared bases that grow out of the skin. `Wings` holds the membranes, each with a rolled hem along its edge.
-  `Eyes` is a separate small mesh whose UVs are the gaze-axis projection, so the shader can paint the iris.
-  With its extras a dragon is 79k to 86k triangles close up and about 22k to 26k beyond 140 m.
-- Each breed adds an extras set that only it shows: `Extra_<breed>` (horns, crests, crystals, tail ornaments) and
-  `WExtra_<breed>` (membrane sails, ear fins, hood), with far-LOD versions `ExtraLOD_<breed>`. Ember has swept
-  ridged horns, curved dorsal spikes, ear fins and a spade tail. Frost has branching antlers, faceted ice crystal
-  clusters and an ice-mace tail. Storm has long rapier horns, a tall spined sail along the back, big ear fins and
-  a swallow-tail fin. Venom has a cobra hood, forward-curving brow horns, jaw tusks, long fangs, hooked thorns and
-  a barbed stinger. All of it is built into the same meshes before baking and split out just before export.
-- A dense sculpted copy (about 650k faces) gets scales, belly plates, horn growth rings, skin folds at the
-  joints, tongue papillae and membrane veins by numpy displacement, plus the colour masks. Cycles bakes it into
-  `dragon_body_normal/ao/col.jpg` (2048, 2048 and 1024) and `dragon_wing_normal/ao/col.jpg` (1024, 1024 and 512).
-  All dragon assets together are about 10 MB.
-- The GLB is repacked (`optimize_glb`) with normalised byte colours, weights and joints and 16-bit UVs.
-
-**The code dragon (the default).** An alternative to all of the above with no Blender and no model or texture files:
-`DragonView` drives a dragon that is generated in JavaScript at load time (about 0.2 s). Settings > Dragon model
-switches to the Blender GLB ("Classic", saved as `da.dragon`), and `?dragon=code|glb` overrides it for one visit;
-`dragonModelChoice()` in `dragon.js` decides, and only the chosen model is downloaded. `dragon.js` only gained a factory
-switch (`loadCodeKit`, and `new DragonView(breed, kit)`). Same 41 bones with the same names, pivots and hierarchy, same mesh
-names, same breed looks, so every effect, the LOD and `mouthWorld()` work unchanged.
+**The dragon model.** There are no model or texture files: `DragonView` (`render/dragon.js`) drives a dragon that is
+generated in JavaScript at load time (about 0.2 s), with 41 bones, four breed looks and a near and a far LOD.
 
 - `render/dragon-code-util.js` is the toolkit: a vertex pool, lofted tubes with arbitrary cross-sections (UVs are the
   mirrored arc length from the belly line and the distance along the path, counted in scale cells, so there is no
@@ -581,13 +548,12 @@ names, same breed looks, so every effect, the LOD and `mouthWorld()` work unchan
   fine on the neck and face, plates on the belly and skull), a low-frequency warp keeps the lattice from reading as a
   grid, and the far LOD has no voronoi plates. The height also drives the cavity darkening, the per-scale tint and
   the ember magma; horn and tooth growth rings are procedural. A 128 px tileable noise gives the stripe, blotch and
-  mottle masks that the breeds tint like the GLB's (stripes stay off the face). The membranes get a canvas-drawn vein
+  mottle masks that the breeds tint (stripes stay off the face). The membranes get a canvas-drawn vein
   map: branching, tapering veins grown through the same panel curves as the mesh, blurred into a height, normal, AO
   and mottle set, with a backlit translucent glow in the shader.
 - About 35k triangles for the body, 5.5k for the wings and 7 to 8k for a breed's extras near; the far LOD is about
-  4k in total (body 1.8k, wings 0.6k, eyes 0.7k, extras about 1k). `node --test tests/dragon-code.test.mjs` checks the rig against the GLB's bones, the skin weights
-  and the budgets. `tools/dragon_compare.html` renders the GLB and the code dragon side by side (same camera, sun and
-  sky) for any breeds and views.
+  4k in total (body 1.8k, wings 0.6k, eyes 0.7k, extras about 1k). `node --test tests/dragon-code.test.mjs` checks the rig, the skin weights
+  and the budgets.
 
 ## Credits
 
