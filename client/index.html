@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>DRAGON ACES: dragon dogfights for up to 10 players</title>
+  <meta name="description" content="Fly a fire-breathing dragon in aerial dogfights against up to 9 other players. Fireballs, flame breath, homing seekers and barrel rolls over a mountain island, in your browser.">
+  <meta property="og:title" content="DRAGON ACES">
+  <meta property="og:description" content="Dragon dogfights for up to 10 players. Spit fire, lock on, barrel roll.">
+  <meta name="theme-color" content="#120d0a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23171009'/%3E%3Cpath d='M3.5 11.5c6 0 9.8 3 12.5 10 2.7-7 6.5-10 12.5-10-2.7 3.2-3.6 7-3.6 12-3.5-2.6-6.5-2.6-8.9.7-2.4-3.3-5.4-3.3-8.9-.7 0-5-.9-8.8-3.6-12Z' fill='%23eab06a'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+  <!-- line icons (Lucide-style) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-mouse" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="5.5"/><path d="M12 2.5V9"/></symbol>
+      <symbol id="i-fire" viewBox="0 0 24 24"><path d="M9.5 6.2C6.7 9.5 4.4 14.4 3 21c6.6-1.4 11.5-3.7 14.8-6.5"/><circle cx="14.5" cy="9.5" r="6"/><path d="M12 11a2.5 2.5 0 0 1 2.5-4"/></symbol>
+      <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 11.5a6 6 0 0 1-12 0C6 11 7 9.500 8.500 8.500 8.500 10.500 9.500 11.500 10.500 11.500 10.500 8 10 5 12 2Z"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4"/></symbol>
+      <symbol id="i-roll" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.200"/><path d="M20.500 3v5.500H15"/></symbol>
+      <symbol id="i-boost" viewBox="0 0 24 24"><path d="M5 18l7-7 7 7M5 11l7-7 7 7"/></symbol>
+      <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.500a4.250 4.250 0 0 1-.5-8.400 5.500 5.500 0 0 1 10.500-.9A4.800 4.800 0 0 1 17.500 18.500Z"/></symbol>
+      <symbol id="i-heat" viewBox="0 0 24 24"><path d="M9.500 14.500V5a2.500 2.500 0 0 1 5 0v9.500a4.500 4.500 0 1 1-5 0Z"/><path d="M12 9v8"/></symbol>
+      <symbol id="i-shrine" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5.500"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></symbol>
+      <symbol id="i-wing" viewBox="0 0 24 24"><path d="M2 7c5.500 0 8.500 3 10 9 1.500-6 4.500-9 10-9-2.200 3-3 6.500-3 11-3-2.500-5.500-2.500-7 .5-1.500-3-4-3-7-.5 0-4.500-.8-8-3-11Z"/></symbol>
+      <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7Z"/></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 22V3M5 4h12l-2.5 4L17 12H5"/></symbol>
+      <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9a2.8 2.8 0 0 1 5.4 1c0 2-2.7 2.5-2.7 4.2M12 17.6v.1"/></symbol>
+      <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.200"/><path d="M12 2.500v3M12 18.500v3M2.500 12h3M18.500 12h3M5.300 5.300l2.100 2.100M16.600 16.600l2.100 2.100M5.300 18.700l2.100-2.100M16.600 7.400l2.100-2.100"/></symbol>
+      <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+      <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+      <symbol id="i-b-ember" viewBox="0 0 24 24"><path d="M21 3c-5 1-8.8 3.8-11.4 7.8"/><circle cx="7.2" cy="14.6" r="2.6"/><circle cx="3.9" cy="20.1" r="1.6"/><circle cx="12.6" cy="16.4" r="1.5"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z"/></symbol>
+      <symbol id="i-rotate" viewBox="0 0 24 24"><rect x="3.5" y="8" width="9" height="13.5" rx="1.8"/><path d="M7 18.5h2"/><path d="M14 3.5a7 7 0 0 1 6.5 6.5"/><path d="M17.5 10h3V7"/></symbol>
+      <symbol id="i-b-frost" viewBox="0 0 24 24"><path d="M12 2v20M3.300 7 20.700 17M3.300 17 20.700 7M9 3.500l3 2.500 3-2.500M9 20.500l3-2.500 3 2.500"/></symbol>
+      <symbol id="i-b-storm" viewBox="0 0 24 24"><path d="M13.500 2 5 13.500h6L9.500 22 19 10h-6.500Z"/></symbol>
+      <symbol id="i-b-venom" viewBox="0 0 24 24"><path d="M12 2c4 5 6.500 8.500 6.500 12.500a6.500 6.500 0 0 1-13 0C5.500 10.500 8 7 12 2Z"/><path d="M9 15a3 3 0 0 0 3 3"/></symbol>
+      <!-- the wordmark: Fraunces outlined and hand-set by tools/build_wordmark.py -->
+      <symbol id="wordmark" viewBox="0 -1460 5892 3030"><path d="M64 -35Q64 -62 94 -73L165 -86Q188 -93 197 -104Q206 -115 206 -137V-1263Q206 -1286 196 -1297Q187 -1309 165 -1315L93 -1328Q64 -1339 64 -1366Q64 -1383 75 -1391Q86 -1400 104 -1400H575Q752 -1400 898 -1346Q1043 -1293 1148 -1193Q1253 -1093 1310 -954Q1367 -815 1367 -644Q1367 -451 1281 -306Q1196 -161 1040 -81Q884 0 669 0H104Q85 0 74 -9Q64 -19 64 -35ZM660 -72Q790 -72 889 -138Q988 -204 1043 -336Q1097 -467 1097 -663Q1097 -817 1061 -939Q1024 -1062 954 -1150Q884 -1237 786 -1283Q688 -1329 565 -1329H464V-148Q464 -109 482 -90Q501 -72 537 -72Z M1703 -490Q1703 -626 1739 -716Q1776 -806 1835 -850Q1894 -895 1961 -895Q2038 -895 2079 -848Q2121 -801 2121 -713Q2121 -638 2090 -603Q2059 -567 2010 -567Q1963 -567 1939 -592Q1914 -618 1913 -667L1913 -699Q1912 -729 1899 -744Q1887 -760 1859 -760Q1824 -760 1794 -730Q1763 -699 1745 -640Q1726 -581 1726 -492ZM1719 -848 1726 -580V-125Q1726 -103 1735 -90Q1743 -76 1763 -73L1845 -61Q1861 -59 1868 -50Q1875 -41 1875 -30Q1875 -17 1866 -8Q1857 0 1840 0H1436Q1421 0 1412 -8Q1403 -16 1403 -30Q1403 -41 1410 -48Q1416 -56 1427 -62L1470 -71Q1488 -75 1494 -87Q1500 -98 1500 -121V-714Q1500 -733 1495 -742Q1490 -750 1477 -753L1419 -755Q1408 -759 1403 -766Q1398 -772 1398 -782Q1398 -793 1405 -801Q1412 -810 1429 -816L1638 -876Q1658 -883 1670 -886Q1681 -888 1690 -888Q1704 -888 1711 -879Q1718 -870 1719 -848Z M2667 -110V-127L2653 -125V-691Q2653 -763 2620 -802Q2588 -841 2527 -841Q2467 -841 2436 -813Q2405 -785 2405 -746V-686Q2405 -634 2373 -603Q2341 -572 2286 -572Q2239 -572 2214 -597Q2189 -622 2189 -668Q2189 -725 2232 -777Q2274 -830 2357 -862Q2440 -895 2562 -895Q2720 -895 2799 -827Q2878 -759 2878 -636V-148Q2878 -119 2889 -104Q2900 -89 2921 -89Q2936 -89 2947 -96Q2959 -104 2963 -121Q2966 -125 2969 -128Q2973 -130 2977 -130Q2985 -130 2990 -123Q2995 -117 2995 -105Q2995 -79 2976 -51Q2958 -22 2920 -2Q2883 19 2826 19Q2750 19 2708 -17Q2667 -53 2667 -110ZM2146 -198Q2146 -313 2241 -381Q2336 -449 2516 -449Q2572 -449 2616 -439Q2660 -430 2694 -414L2680 -369Q2647 -384 2612 -392Q2577 -401 2535 -401Q2458 -401 2415 -357Q2372 -314 2372 -235Q2372 -160 2411 -120Q2450 -80 2512 -80Q2561 -80 2605 -103Q2650 -125 2680 -166L2696 -125Q2651 -57 2572 -19Q2493 19 2401 19Q2285 19 2216 -41Q2146 -100 2146 -198Z M3572 -52Q3463 -76 3410 -94Q3356 -112 3338 -129Q3320 -146 3320 -166Q3320 -185 3334 -201Q3348 -216 3372 -225L3365 -240Q3280 -231 3228 -207Q3175 -182 3152 -147Q3129 -111 3129 -69Q3129 -25 3157 9Q3185 43 3254 71Q3323 99 3448 125Q3556 146 3615 168Q3673 190 3696 219Q3718 247 3718 285Q3718 327 3690 359Q3662 391 3605 407Q3549 424 3461 424Q3302 424 3234 367Q3165 310 3165 223Q3165 176 3200 139Q3234 102 3310 79L3293 59Q3135 82 3066 138Q2996 195 2996 276Q2996 339 3041 388Q3087 437 3184 464Q3282 492 3439 492Q3669 492 3788 413Q3907 333 3907 204Q3907 134 3876 85Q3844 37 3771 4Q3698 -29 3572 -52ZM3587 -830 3628 -821Q3654 -867 3675 -889Q3697 -911 3721 -911Q3742 -911 3757 -898Q3772 -884 3786 -866Q3801 -847 3819 -834Q3836 -820 3863 -820Q3904 -820 3927 -847Q3951 -875 3951 -922Q3951 -977 3916 -1009Q3882 -1042 3822 -1042Q3753 -1042 3699 -997Q3646 -952 3606 -868ZM3837 -559Q3837 -652 3790 -728Q3742 -804 3654 -850Q3566 -896 3445 -896Q3317 -896 3224 -850Q3130 -804 3079 -724Q3029 -644 3029 -541Q3029 -447 3079 -373Q3129 -298 3220 -254Q3312 -211 3437 -211Q3552 -211 3642 -256Q3733 -300 3785 -379Q3837 -457 3837 -559ZM3398 -836Q3478 -840 3536 -765Q3594 -690 3607 -555Q3621 -426 3579 -351Q3537 -275 3464 -272Q3412 -268 3368 -302Q3324 -335 3294 -399Q3265 -463 3255 -552Q3246 -638 3263 -700Q3280 -763 3315 -799Q3351 -834 3398 -836Z M4383 -895Q4515 -895 4616 -836Q4716 -778 4773 -674Q4830 -571 4830 -436Q4830 -304 4772 -201Q4713 -99 4611 -40Q4508 18 4373 18Q4242 18 4141 -39Q4041 -97 3984 -200Q3928 -302 3928 -437Q3928 -569 3986 -672Q4044 -775 4146 -835Q4249 -895 4383 -895ZM4442 -52Q4503 -61 4544 -113Q4584 -165 4597 -256Q4610 -346 4591 -469Q4572 -597 4532 -679Q4492 -762 4437 -798Q4382 -834 4317 -824Q4253 -815 4214 -762Q4174 -709 4162 -619Q4150 -529 4168 -406Q4187 -280 4227 -198Q4267 -116 4323 -80Q4378 -43 4442 -52Z M5210 -855V-123Q5210 -97 5216 -85Q5223 -73 5240 -68L5284 -58Q5304 -49 5304 -30Q5304 0 5273 0H4920Q4905 0 4896 -8Q4888 -16 4888 -30Q4888 -41 4893 -48Q4898 -55 4910 -61L4955 -71Q4972 -75 4978 -87Q4985 -98 4985 -122V-713Q4985 -731 4980 -739Q4975 -747 4962 -751L4905 -752Q4892 -756 4887 -763Q4883 -769 4883 -780Q4883 -791 4890 -799Q4897 -806 4913 -813L5120 -877Q5143 -886 5155 -888Q5166 -891 5177 -891Q5193 -891 5202 -881Q5210 -871 5210 -855ZM5189 -647 5159 -681 5197 -717Q5295 -812 5370 -853Q5445 -895 5517 -895Q5613 -895 5665 -835Q5716 -775 5731 -660L5800 -126Q5803 -100 5809 -87Q5815 -74 5833 -70L5873 -61Q5884 -55 5890 -48Q5896 -41 5896 -30Q5896 -16 5888 -8Q5879 0 5862 0H5506Q5475 0 5475 -30Q5475 -49 5495 -58L5540 -68Q5559 -73 5567 -86Q5575 -99 5572 -123L5511 -606Q5500 -685 5471 -723Q5441 -762 5385 -762Q5345 -762 5306 -741Q5267 -721 5221 -678Z M1876 965H2421L2425 1040H1871ZM1961 1495Q1961 1511 1952 1520Q1943 1530 1923 1530H1628Q1608 1530 1599 1520Q1589 1511 1589 1495Q1589 1482 1596 1475Q1603 1467 1616 1460L1652 1447Q1678 1436 1699 1411Q1720 1385 1738 1324L2051 292Q2063 254 2054 235Q2045 216 2015 205Q1996 195 1987 186Q1977 178 1977 164Q1977 147 1987 139Q1997 130 2016 130H2427Q2447 130 2457 139Q2467 148 2467 164Q2467 177 2458 186Q2449 196 2429 204Q2404 211 2398 223Q2392 235 2402 267L2752 1366Q2765 1410 2783 1429Q2800 1447 2829 1456Q2846 1465 2853 1473Q2861 1481 2861 1495Q2861 1511 2850 1520Q2840 1530 2820 1530H2421Q2401 1530 2391 1520Q2381 1511 2381 1495Q2381 1482 2388 1474Q2396 1465 2411 1459L2465 1450Q2486 1445 2491 1428Q2495 1411 2484 1374L2128 236L2154 211L1820 1314Q1808 1353 1813 1380Q1818 1407 1836 1423Q1855 1440 1886 1449L1933 1460Q1948 1466 1955 1474Q1961 1483 1961 1495Z M3563 874Q3563 930 3532 962Q3502 993 3451 993Q3398 993 3370 962Q3342 930 3342 875V827Q3342 770 3307 737Q3272 703 3209 703Q3147 703 3100 742Q3052 780 3026 851Q3000 922 3000 1018Q3000 1139 3037 1222Q3075 1306 3140 1348Q3206 1391 3288 1391Q3377 1391 3435 1352Q3494 1313 3521 1243Q3530 1232 3536 1228Q3542 1225 3549 1225Q3557 1225 3562 1232Q3567 1239 3566 1252Q3553 1339 3505 1406Q3457 1473 3379 1511Q3301 1549 3199 1549Q3082 1549 2989 1496Q2897 1443 2845 1343Q2792 1244 2792 1104Q2792 972 2847 865Q2902 759 3000 697Q3098 635 3229 635Q3335 635 3409 667Q3483 699 3523 754Q3563 809 3563 874Z M4409 989Q4409 1024 4389 1044Q4370 1064 4333 1064H3763V1009H4144Q4180 1009 4180 972Q4180 840 4133 771Q4087 703 4016 703Q3956 703 3913 739Q3869 775 3844 846Q3819 917 3819 1022Q3819 1209 3901 1306Q3984 1402 4117 1402Q4208 1402 4274 1355Q4340 1307 4361 1231Q4368 1220 4375 1216Q4382 1212 4388 1212Q4397 1212 4402 1219Q4407 1225 4406 1240Q4400 1324 4352 1395Q4303 1465 4221 1507Q4138 1550 4031 1550Q3905 1550 3810 1495Q3716 1439 3663 1338Q3611 1238 3611 1104Q3611 968 3663 862Q3716 756 3813 695Q3911 635 4045 635Q4155 635 4237 681Q4319 727 4364 807Q4409 888 4409 989Z M4818 1490Q4884 1490 4922 1456Q4959 1422 4959 1370Q4959 1334 4943 1306Q4927 1278 4887 1253Q4847 1229 4775 1207Q4652 1170 4582 1126Q4512 1082 4483 1026Q4454 970 4454 896Q4454 776 4537 705Q4620 634 4772 634Q4831 634 4869 645Q4908 656 4931 668Q4954 679 4967 679Q4977 679 4993 668Q5009 656 5026 645Q5042 634 5056 634Q5067 634 5076 641Q5085 647 5090 669L5139 874Q5146 900 5143 917Q5141 934 5126 940Q5112 946 5098 940Q5083 934 5073 917Q5028 833 4984 784Q4939 735 4890 714Q4840 693 4783 693Q4707 693 4669 729Q4630 765 4630 819Q4630 856 4648 887Q4666 918 4712 944Q4758 970 4840 993Q4945 1021 5010 1062Q5075 1103 5106 1159Q5136 1215 5136 1287Q5136 1367 5097 1426Q5059 1484 4990 1518Q4921 1551 4832 1551Q4771 1551 4732 1537Q4693 1522 4672 1508Q4651 1493 4642 1493Q4633 1493 4619 1507Q4605 1521 4590 1535Q4575 1549 4562 1549Q4551 1549 4542 1541Q4534 1532 4530 1513L4492 1320Q4486 1289 4489 1274Q4491 1259 4506 1254Q4519 1250 4532 1257Q4545 1264 4557 1283Q4618 1396 4682 1443Q4746 1490 4818 1490Z"/></symbol>
+    </defs>
+  </svg>
+
+  <canvas id="gl" aria-label="Game view"></canvas>
+  <canvas id="overlay" aria-hidden="true"></canvas>
+  <div id="cut" class="cut" aria-hidden="true"></div>
+  <div id="flash" class="flash" aria-hidden="true"></div>
+  <div id="vignette" class="vignette" aria-hidden="true"></div>
+
+  <!-- in-game HUD: quiet by default; secondary readouts only appear when they matter (see hud.js) -->
+  <div id="hud" class="hidden">
+    <div class="hud-tl">
+      <span id="room-tag" class="tag"></span><span id="net-tag" class="tag dim"></span>
+    </div>
+    <button id="btn-hud-pause" class="hud-pause" aria-label="Pause"><i></i><i></i></button>
+    <div class="hud-top">
+      <div class="plaque">
+        <div id="timer" class="timer">8:00</div>
+        <div id="leader" class="leader"></div>
+        <div id="team-score" class="team-score hidden"></div>
+        <div id="sb-tip" class="sb-tip" hidden>Tap for scores</div>
+      </div>
+    </div>
+    <div class="hud-tr">
+      <div class="radar-wrap"><canvas id="radar" width="200" height="200"></canvas></div>
+      <div id="feed" class="feed"></div>
+    </div>
+    <div class="hud-bl">
+      <div id="breed-tag" class="breed-tag"></div>
+      <div id="status-tag" class="status-tag"></div>
+      <div class="gauge hp" title="Hull"><svg class="hi" aria-hidden="true"><use href="#i-heart"/></svg><span id="hp-text" class="hp-num">100</span><div class="track"><i id="hp-lag"></i><i id="hp-fill"></i></div></div>
+      <div class="gauge stam" title="Wings"><svg class="gi" aria-hidden="true"><use href="#i-wing"/></svg><div class="track"><i id="stam-fill"></i></div></div>
+      <div class="gauge heat" title="Fire heat"><svg class="gi" aria-hidden="true"><use href="#i-heat"/></svg><div class="track"><i id="heat-fill"></i></div><label id="heat-text"></label></div>
+      <div class="kit">
+        <div id="ab-seek" class="ab" title="Seeker (F)"><svg class="ring" viewBox="0 0 40 40" aria-hidden="true"><circle class="rt" cx="20" cy="20" r="17"/><circle class="rp" cx="20" cy="20" r="17" pathLength="100"/></svg><svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg><kbd>F</kbd></div>
+        <div id="ab-abil" class="ab" title="Breed ability (R)"><svg class="ring" viewBox="0 0 40 40" aria-hidden="true"><circle class="rt" cx="20" cy="20" r="17"/><circle class="rp" cx="20" cy="20" r="17" pathLength="100"/></svg><svg class="ico" aria-hidden="true"><use href="#i-flame"/></svg><kbd>R</kbd></div>
+      </div>
+      <div id="abil-tag" class="abil-tag" hidden></div>
+    </div>
+    <div class="hud-br">
+      <div class="readout spd"><b id="spd">0</b><small>km/h</small></div>
+      <div class="readout alt"><b id="alt">0</b><small>m</small></div>
+      <div class="throttle"><i id="thr-fill"></i></div>
+    </div>
+    <div id="warn" class="warn"></div>
+    <div id="lockwarn" class="lockwarn"></div>
+    <div id="center-msg" class="center-msg"></div>
+    <div id="banner" class="banner"></div>
+    <div id="respawn" class="respawn hidden"></div>
+    <div id="cloud-tag" class="cloud-tag">In cloud, hidden from radar</div>
+    <div id="click-hint" class="click-hint">Click to take the reins</div>
+    <div id="hints" class="hints"></div>
+    <div id="turn-card" class="turn-card" hidden><svg aria-hidden="true"><use href="#i-rotate"/></svg><b>Turn your phone sideways</b><span>The sky is wider that way</span></div>
+  </div>
+
+
+  <div id="scoreboard" class="panel scoreboard hidden">
+    <h2>Standings</h2>
+    <p id="sb-sub" class="sub"></p>
+    <div class="table-wrap"><table><thead><tr><th>#</th><th>Dragon</th><th>Breed</th><th>Kills</th><th>Deaths</th><th>Score</th></tr></thead><tbody id="sb-body"></tbody></table></div>
+  </div>
+
+  <div id="results" class="results hidden">
+    <div class="results-card">
+      <h1 id="res-title">Battle over</h1>
+      <p id="res-sub" class="sub"></p>
+      <div class="results-grid">
+        <div id="res-podium" class="podium"></div>
+        <div class="res-side">
+          <div id="res-stats" class="stat-tiles"></div>
+          <div id="res-awards" class="awards"></div>
+        </div>
+      </div>
+      <div class="table-wrap res-table"><table><thead><tr><th>#</th><th>Dragon</th><th>Kills</th><th>Deaths</th><th>Assists</th><th>Score</th><th>Medals</th></tr></thead><tbody id="res-body"></tbody></table></div>
+      <div class="next"><span id="res-next">Next battle soon</span><i id="res-bar"></i></div>
+    </div>
+  </div>
+
+  <!-- title screen: the showcase dragon is the background; the chrome stays in the left column and the bottom band -->
+  <div id="menu" class="menu hidden">
+    <div class="menu-shade"></div>
+    <aside class="menu-col">
+      <header class="brand">
+        <h1 class="logo"><svg class="mark" aria-hidden="true" focusable="false"><use href="#wordmark"/></svg><span class="sr">Dragon Aces</span></h1>
+        <p class="tagline">Dogfights on dragonback over a mountain island. Friends, strangers or bots.</p>
+      </header>
+      <div class="actions">
+        <label class="callsign"><span>Callsign</span><input id="name" maxlength="16" autocomplete="off" spellcheck="false"></label>
+        <nav class="play" aria-label="Play">
+          <button id="btn-quick" class="mbtn primary"><b>Quick Battle</b><kbd class="hint">Enter</kbd><svg class="go" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          <div class="alt">
+            <button id="btn-offline" class="mbtn"><b>Practice<span class="long"> vs bots</span></b></button>
+            <button id="btn-more" class="mbtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="more"><b>More ways to fly</b><svg aria-hidden="true"><use href="#i-right"/></svg></button>
+          </div>
+          <p id="menu-error" class="error"></p>
+        </nav>
+      </div>
+      <div class="subnav">
+        <button id="btn-howto" class="lbtn">How to play</button>
+        <button id="btn-settings" class="lbtn">Settings</button>
+        <button id="btn-credits" class="lbtn">Credits</button>
+      </div>
+    </aside>
+    <!-- private skies, joining a friend and the mode: a sheet over the menu (bottom sheet on a phone) -->
+    <div id="more" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="more-title">
+      <div class="sheet-card" tabindex="-1">
+        <div class="sheet-head">
+          <h2 id="more-title">More ways to fly</h2>
+          <button id="more-x" class="modal-x" type="button" aria-label="Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <button id="btn-create" class="srow" type="button"><span class="st"><b>Private sky</b><small>A sky of your own, with a code to share</small></span><svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        <div class="srow join">
+          <label class="st" for="code"><b>Join a friend</b><small>Type the code from their invite</small></label>
+          <div class="join-field">
+            <input id="code" maxlength="4" placeholder="Friend's code" autocomplete="off" autocapitalize="characters" spellcheck="false">
+            <button id="btn-join" type="button" aria-label="Join a friend's sky">Join</button>
+          </div>
+        </div>
+        <label class="srow mode"><span class="st"><b>Battle type</b><small>For private skies and practice</small></span>
+          <select id="set-mode"><option value="ffa">Free-for-all, first to 15</option><option value="tdm">Team deathmatch, Gold vs Crimson</option></select>
+        </label>
+      </div>
+    </div>
+    <section class="breed-pick" id="breed-pick" aria-label="Choose your dragon">
+      <h2 id="breed-name" aria-live="polite"></h2>
+      <div class="bp-nav">
+        <button id="breed-prev" class="arrow" type="button" aria-label="Previous dragon"><svg aria-hidden="true"><use href="#i-left"/></svg></button>
+        <div class="breeds" id="breeds" role="radiogroup" aria-label="Dragon breed"></div>
+        <button id="breed-next" class="arrow" type="button" aria-label="Next dragon"><svg aria-hidden="true"><use href="#i-right"/></svg></button>
+      </div>
+      <p id="breed-blurb" class="blurb"></p>
+      <p class="ability"><kbd>R</kbd><b id="breed-abil"></b><span id="breed-abil-text"></span></p>
+      <dl class="stats" id="breed-stats"></dl>
+    </section>
+  </div>
+
+  <!-- how to play / settings / credits -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" tabindex="-1">
+      <button id="modal-x" class="modal-x" aria-label="Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
+      <section id="m-howto" class="pane hidden">
+        <h2>How to play</h2>
+        <div class="cards">
+          <article class="lead"><svg class="ico"><use href="#i-mouse"/></svg><h3 data-touch="Drag to aim">Steer with the mouse</h3><p data-touch="Drag a thumb anywhere off the buttons. Your dragon banks and pulls toward the white aim circle; the gold nose reticle shows where fireballs will fly.">Your dragon banks and pulls toward the white aim circle. The gold nose reticle shows where your fireballs will fly.</p></article>
+          <article class="lead"><svg class="ico"><use href="#i-fire"/></svg><h3>Fireballs</h3><p data-touch="Hold Fire. Aim at the gold lead marker to hit dragons that are moving."><kbd>Left click</kbd> or <kbd>J</kbd>. Shoot at the gold lead marker to hit dragons that are moving.</p></article>
+          <article><svg class="ico"><use href="#i-flame"/></svg><h3>Flame breath</h3><p data-touch="Hold Breath. Short range and brutal, but it burns heat fast."><kbd>Right click</kbd> or <kbd>K</kbd>. Short range and brutal, but it burns heat fast.</p></article>
+          <article><svg class="ico"><use href="#i-lock"/></svg><h3>Seekers</h3><p data-touch="Keep a dragon near your aim for a second to lock on, then tap Seek. Seekers home in and hit hard.">Keep a dragon near your aim for a second to lock on, then press <kbd>F</kbd>. Seekers home in and hit hard.</p></article>
+          <article class="lead"><svg class="ico"><use href="#i-roll"/></svg><h3>Barrel roll</h3><p data-touch="Tap Roll for a fast sideways dodge. At close range it shakes off an incoming seeker."><kbd>Q</kbd> / <kbd>E</kbd>. A fast sideways dodge. At close range it shakes off an incoming seeker.</p></article>
+          <article><svg class="ico"><use href="#i-wing"/></svg><h3>Energy</h3><p data-touch="Dive to gain speed, climb to spend it. Below about 110 km/h you stall. Left stick up beats harder, down brakes; hold Boost to sprint.">Dive to gain speed, climb to spend it. Below about 110 km/h you stall. <kbd>W</kbd> beats harder, <kbd>S</kbd> brakes, <kbd>Shift</kbd> boosts.</p></article>
+          <article><svg class="ico"><use href="#i-heat"/></svg><h3>Heat</h3><p>Every shot adds heat. At 100 you overheat and cannot fire until the gauge cools to 40.</p></article>
+          <article><svg class="ico"><use href="#i-cloud"/></svg><h3>Clouds</h3><p>Inside a cloud you vanish from radar and cannot be locked. You can't see much either.</p></article>
+          <article><svg class="ico"><use href="#i-zap"/></svg><h3>Breed ability</h3><p data-touch="The button above Roll, named after your dragon's power. Ember drops a napalm wake, Frost unleashes a Frost Nova, Storm chains lightning between foes, Venom lobs an acid cloud. Kills shorten the cooldown."><kbd>R</kbd>. Ember drops a napalm wake, Frost unleashes a Frost Nova, Storm chains lightning between foes, Venom lobs an acid cloud. Kills shorten the cooldown.</p></article>
+          <article><svg class="ico"><use href="#i-flag"/></svg><h3>Team Deathmatch</h3><p>Gold against Crimson, first flight to 20 kills. No friendly fire. Public skies alternate with free-for-all; pick a mode for private skies and practice.</p></article>
+          <article><svg class="ico"><use href="#i-shrine"/></svg><h3>Ember shrines</h3><p>Fly through the glowing orb above a sky island to heal 40 HP. It recharges for 25 seconds.</p></article>
+        </div>
+        <div class="keys" id="keys-desktop">
+          <span><kbd>A</kbd><kbd>D</kbd> roll</span><span><kbd>C</kbd> free look</span><span><kbd>Tab</kbd> scores</span><span><kbd>Esc</kbd> pause</span><span>Gamepads work too</span>
+        </div>
+        <div class="keys" id="keys-touch"><span>Left stick: roll, up and down for wingbeat</span><span>Tap the clock: scores</span><span>Round button with two bars: pause</span><span>Plays best held sideways</span></div>
+      </section>
+      <section id="m-settings" class="pane hidden">
+        <h2>Settings</h2>
+        <div class="settings">
+          <label><span>Master volume</span><input id="set-vol" type="range" min="0" max="1" step="0.05"><output></output></label>
+          <label><span>Music</span><input id="set-music" type="range" min="0" max="1" step="0.05"><output></output></label>
+          <label><span>Effects</span><input id="set-sfx" type="range" min="0" max="1" step="0.05"><output></output></label>
+          <label><span>Ambience and wind</span><input id="set-amb" type="range" min="0" max="1" step="0.05"><output></output></label>
+          <label><span data-touch="Aim sensitivity">Mouse sensitivity</span><input id="set-sens" type="range" min="0.3" max="2.5" step="0.05"><output></output></label>
+          <label><span>Dragon model</span><select id="set-dragon"><option value="code">Sculpted (new)</option><option value="glb">Classic</option></select></label>
+          <label><span>Graphics</span><select id="set-q"><option value="0">Fast</option><option value="1">High</option><option value="2">Ultra</option></select></label>
+          <label class="check"><span>Invert vertical aim</span><input id="set-inv" type="checkbox"></label>
+          <label class="check"><span>Control hints in battle</span><input id="set-hints" type="checkbox"></label>
+          <label class="check"><span>Magnifier lenses on far dragons</span><input id="set-lens" type="checkbox"></label>
+          <button id="btn-fs" class="fsbtn" type="button">Full screen</button>
+        </div>
+      </section>
+      <section id="m-credits" class="pane hidden">
+        <h2>Credits</h2>
+        <div class="credits">
+          <h3>Music</h3>
+          <p>&ldquo;The Fall of Arcana&rdquo; and &ldquo;Dream Raid&rdquo; by Matthew Pablo (matthewpablo.com), CC BY 3.0.</p>
+          <h3>Sound effects</h3>
+          <p>Dragon roars: Darsycho and trazzz123 (CC0). Wings: AntumDeluge and VishwaJai (CC0). Fireball: Julien Matthey (CC0). Creature, bang, splash and swish packs: rubberduck, artisticdude, qubodup, PagDev (CC0). Interface, impact and sci-fi packs: Kenney.nl (CC0).</p>
+          <h3>World</h3>
+          <p>Sky and terrain textures from Poly Haven (CC0). Built with three.js.</p>
+          <h3>Type</h3>
+          <p>Fraunces by Undercase Type and Archivo by Omnibus-Type, both under the SIL Open Font License.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="pause" class="menu pausemenu hidden">
+    <div class="pause-panel">
+      <h2>Paused</h2>
+      <p class="dim"><b>Not paused:</b> the battle goes on, and your dragon glides on without you.</p>
+      <button id="btn-resume" class="mbtn primary"><b>Back to the sky</b></button>
+      <div class="pause-alt">
+        <button id="btn-pause-settings" class="mbtn"><b>Settings</b></button>
+        <button id="btn-pause-howto" class="mbtn"><b>How to play</b></button>
+        <button id="btn-invite" class="mbtn hidden"><b>Copy invite link</b></button>
+        <button id="btn-leave" class="mbtn leave"><b>Leave battle</b></button>
+      </div>
+      <p id="pause-code" class="dim"></p>
+    </div>
+  </div>
+
+  <div id="loading" class="loading">
+    <h1 class="logo"><svg class="mark" aria-hidden="true" focusable="false"><use href="#wordmark"/></svg><span class="sr">Dragon Aces</span></h1>
+    <div class="progress"><i id="load-fill"></i></div>
+    <p id="load-text">Waking the dragons</p>
+    <div class="tip"><small id="tip-head">Flight tip</small><p id="tip-text"></p></div>
+  </div>
+
+  <div id="touch" class="touch hidden">
+    <div class="stick"><div class="knob"></div></div>
+    <button class="tb b-fire" aria-label="Fire"><svg aria-hidden="true"><use href="#i-fire"/></svg><span>Fire</span></button>
+    <button class="tb b-breath" aria-label="Flame breath"><svg aria-hidden="true"><use href="#i-flame"/></svg><span>Breath</span></button>
+    <button class="tb b-boost" aria-label="Boost"><svg aria-hidden="true"><use href="#i-boost"/></svg><span>Boost</span></button>
+    <button class="tb b-seek" aria-label="Seeker"><svg aria-hidden="true"><use href="#i-lock"/></svg><span>Seek</span></button>
+    <button class="tb b-dodge" aria-label="Barrel roll"><svg aria-hidden="true"><use href="#i-roll"/></svg><span>Roll</span></button>
+    <button class="tb b-abil" aria-label="Breed ability"><svg aria-hidden="true"><use href="#i-zap"/></svg><span>Power</span></button>
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>

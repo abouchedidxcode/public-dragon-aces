@@ -1,0 +1,48 @@
+{
+  "_comment": "Loudness spec for client/assets/audio. tools/build_audio.py normalises every sample to targets[category] + offsets[name] (active LUFS, see tools/loudness.py) with a -1 dBFS limiter; tests/audio.test.mjs re-measures the shipped mp3s. client/js/audio.js must list the same categories (CATALOG).",
+  "tolerance": 1.0,
+  "ceiling": -1.0,
+  "targets": {
+    "explosion": -20,
+    "voice": -19,
+    "ability": -20,
+    "weapon": -21,
+    "impact": -22,
+    "stinger": -21,
+    "alert": -25,
+    "flap": -27,
+    "loop": -27,
+    "ui": -29
+  },
+  "music": { "integrated": -16, "ceiling": -1.5 },
+  "offsets": {
+    "explode_big": 1.0,
+    "roar_deep": -1,
+    "hurt_1": -2, "hurt_2": -2, "hurt_3": -2,
+    "dodge": 3,
+    "impact_seeker": 1,
+    "splash_1": 0, "splash_2": 0, "splash_3": 0,
+    "ui_hover": -5, "ui_tab": -3,
+    "hit": 0, "kill": 0, "heal": -2,
+    "sea_loop": -4,
+    "nova_charge": -2, "chain_charge": -3, "acid_spit": -2, "chill": -5,
+    "inferno": 0,
+    "heartbeat": 0
+  },
+  "samples": {
+    "explode_1": "explosion", "explode_2": "explosion", "explode_3": "explosion", "explode_big": "explosion",
+    "roar_1": "voice", "roar_2": "voice", "roar_3": "voice", "roar_4": "voice", "roar_5": "voice", "roar_deep": "voice",
+    "hurt_1": "voice", "hurt_2": "voice", "hurt_3": "voice",
+    "nova_charge": "ability", "nova_burst": "ability", "chain_charge": "ability", "chain_zap": "ability", "chain_miss": "ability",
+    "acid_spit": "ability", "acid_burst": "ability", "inferno": "ability", "chill": "ability",
+    "fireball_1": "weapon", "fireball_2": "weapon", "fireball_3": "weapon", "seeker": "weapon", "breath_start": "weapon", "overheat": "weapon",
+    "impact_1": "impact", "impact_2": "impact", "impact_3": "impact", "impact_seeker": "impact",
+    "splash_1": "impact", "splash_2": "impact", "splash_3": "impact",
+    "hit": "stinger", "kill": "stinger", "streak_1": "stinger", "streak_2": "stinger", "streak_3": "stinger", "heal": "stinger",
+    "warn_seeker": "alert", "warn_lock": "alert", "heartbeat": "alert",
+    "flap_1": "flap", "flap_2": "flap", "flap_3": "flap", "flap_4": "flap", "dodge": "flap",
+    "breath_loop": "loop", "sea_loop": "loop",
+    "ui_hover": "ui", "ui_click": "ui", "ui_confirm": "ui", "ui_back": "ui", "ui_open": "ui", "ui_close": "ui",
+    "ui_error": "ui", "ui_toggle": "ui", "ui_pick": "ui", "ui_tab": "ui"
+  }
+}

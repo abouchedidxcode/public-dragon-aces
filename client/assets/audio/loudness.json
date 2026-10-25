@@ -1,0 +1,578 @@
+{
+ "acid_burst": {
+  "cat": "ability",
+  "target": -20.0,
+  "active": -20.01,
+  "integrated": -24.43,
+  "peak": -3.01,
+  "crest": 21.1,
+  "dur": 1.45
+ },
+ "acid_spit": {
+  "cat": "ability",
+  "target": -22,
+  "active": -21.98,
+  "integrated": -22.36,
+  "peak": -6.74,
+  "crest": 16.2,
+  "dur": 0.456
+ },
+ "breath_loop": {
+  "cat": "loop",
+  "target": -27.0,
+  "active": -27.0,
+  "integrated": -27.02,
+  "peak": -11.13,
+  "crest": 14.1,
+  "dur": 4.5
+ },
+ "breath_start": {
+  "cat": "weapon",
+  "target": -21.0,
+  "active": -21.0,
+  "integrated": -20.24,
+  "peak": -5.57,
+  "crest": 14.3,
+  "dur": 0.7
+ },
+ "chain_charge": {
+  "cat": "ability",
+  "target": -23,
+  "active": -23.0,
+  "integrated": -23.58,
+  "peak": -9.64,
+  "crest": 13.8,
+  "dur": 0.4
+ },
+ "chain_miss": {
+  "cat": "ability",
+  "target": -20.0,
+  "active": -20.08,
+  "integrated": -23.89,
+  "peak": -4.15,
+  "crest": 21.5,
+  "dur": 0.82
+ },
+ "chain_zap": {
+  "cat": "ability",
+  "target": -20.0,
+  "active": -20.01,
+  "integrated": -24.31,
+  "peak": -3.31,
+  "crest": 22.3,
+  "dur": 1.52
+ },
+ "chill": {
+  "cat": "ability",
+  "target": -25,
+  "active": -25.0,
+  "integrated": -27.16,
+  "peak": -14.43,
+  "crest": 15.1,
+  "dur": 0.97
+ },
+ "dodge": {
+  "cat": "flap",
+  "target": -24,
+  "active": -24.02,
+  "integrated": -25.38,
+  "peak": -9.03,
+  "crest": 15.7,
+  "dur": 0.5
+ },
+ "explode_1": {
+  "cat": "explosion",
+  "target": -20.0,
+  "active": -20.01,
+  "integrated": -20.41,
+  "peak": -2.27,
+  "crest": 15.7,
+  "dur": 2.0
+ },
+ "explode_2": {
+  "cat": "explosion",
+  "target": -20.0,
+  "active": -20.04,
+  "integrated": -21.27,
+  "peak": -1.92,
+  "crest": 13.6,
+  "dur": 1.98
+ },
+ "explode_3": {
+  "cat": "explosion",
+  "target": -20.0,
+  "active": -20.0,
+  "integrated": -20.74,
+  "peak": -3.48,
+  "crest": 14.0,
+  "dur": 1.818
+ },
+ "explode_big": {
+  "cat": "explosion",
+  "target": -19.0,
+  "active": -19.05,
+  "integrated": -18.81,
+  "peak": -1.87,
+  "crest": 12.2,
+  "dur": 2.829
+ },
+ "fireball_1": {
+  "cat": "weapon",
+  "target": -21.0,
+  "active": -21.0,
+  "integrated": -20.55,
+  "peak": -6.12,
+  "crest": 14.2,
+  "dur": 1.43
+ },
+ "fireball_2": {
+  "cat": "weapon",
+  "target": -21.0,
+  "active": -20.97,
+  "integrated": -19.99,
+  "peak": -5.86,
+  "crest": 14.8,
+  "dur": 1.212
+ },
+ "fireball_3": {
+  "cat": "weapon",
+  "target": -21.0,
+  "active": -21.0,
+  "integrated": -20.2,
+  "peak": -5.78,
+  "crest": 14.2,
+  "dur": 1.682
+ },
+ "flap_1": {
+  "cat": "flap",
+  "target": -27.0,
+  "active": -27.01,
+  "integrated": -28.3,
+  "peak": -11.49,
+  "crest": 15.2,
+  "dur": 0.704
+ },
+ "flap_2": {
+  "cat": "flap",
+  "target": -27.0,
+  "active": -27.01,
+  "integrated": -28.76,
+  "peak": -11.4,
+  "crest": 15.5,
+  "dur": 0.738
+ },
+ "flap_3": {
+  "cat": "flap",
+  "target": -27.0,
+  "active": -27.01,
+  "integrated": -28.75,
+  "peak": -11.18,
+  "crest": 15.6,
+  "dur": 0.706
+ },
+ "flap_4": {
+  "cat": "flap",
+  "target": -27.0,
+  "active": -27.1,
+  "integrated": -26.83,
+  "peak": -6.32,
+  "crest": 14.9,
+  "dur": 1.5
+ },
+ "heal": {
+  "cat": "stinger",
+  "target": -23,
+  "active": -23.0,
+  "integrated": -22.94,
+  "peak": -8.7,
+  "crest": 16.0,
+  "dur": 2.1
+ },
+ "heartbeat": {
+  "cat": "alert",
+  "target": -25,
+  "active": -25.0,
+  "integrated": -24.34,
+  "peak": -9.42,
+  "crest": 11.4,
+  "dur": 0.44
+ },
+ "hit": {
+  "cat": "stinger",
+  "target": -21,
+  "active": -21.0,
+  "integrated": -29.86,
+  "peak": -11.41,
+  "crest": 11.2,
+  "dur": 0.07
+ },
+ "hurt_1": {
+  "cat": "voice",
+  "target": -21,
+  "active": -20.99,
+  "integrated": -23.33,
+  "peak": -4.37,
+  "crest": 19.2,
+  "dur": 0.635
+ },
+ "hurt_2": {
+  "cat": "voice",
+  "target": -21,
+  "active": -21.0,
+  "integrated": -24.2,
+  "peak": -8.05,
+  "crest": 15.8,
+  "dur": 0.587
+ },
+ "hurt_3": {
+  "cat": "voice",
+  "target": -21,
+  "active": -21.0,
+  "integrated": -21.59,
+  "peak": -6.65,
+  "crest": 16.0,
+  "dur": 0.853
+ },
+ "impact_1": {
+  "cat": "impact",
+  "target": -22.0,
+  "active": -21.99,
+  "integrated": -25.57,
+  "peak": -6.38,
+  "crest": 17.0,
+  "dur": 0.649
+ },
+ "impact_2": {
+  "cat": "impact",
+  "target": -22.0,
+  "active": -22.01,
+  "integrated": -25.52,
+  "peak": -5.67,
+  "crest": 17.2,
+  "dur": 0.55
+ },
+ "impact_3": {
+  "cat": "impact",
+  "target": -22.0,
+  "active": -21.99,
+  "integrated": -24.24,
+  "peak": -5.28,
+  "crest": 15.8,
+  "dur": 0.569
+ },
+ "impact_seeker": {
+  "cat": "impact",
+  "target": -21,
+  "active": -20.99,
+  "integrated": -21.27,
+  "peak": -7.89,
+  "crest": 10.1,
+  "dur": 0.6
+ },
+ "inferno": {
+  "cat": "ability",
+  "target": -20,
+  "active": -20.0,
+  "integrated": -19.27,
+  "peak": -3.26,
+  "crest": 14.3,
+  "dur": 2.25
+ },
+ "kill": {
+  "cat": "stinger",
+  "target": -21,
+  "active": -20.99,
+  "integrated": -24.77,
+  "peak": -6.72,
+  "crest": 17.8,
+  "dur": 0.536
+ },
+ "music_battle": {
+  "cat": "music",
+  "target": -16,
+  "active": -16.0,
+  "integrated": -16.0,
+  "peak": -4.25,
+  "crest": 14.0,
+  "dur": 151.416
+ },
+ "music_menu": {
+  "cat": "music",
+  "target": -16,
+  "active": -15.99,
+  "integrated": -15.99,
+  "peak": -3.54,
+  "crest": 15.0,
+  "dur": 152.059
+ },
+ "music_results": {
+  "cat": "music",
+  "target": -16,
+  "active": -16.68,
+  "integrated": -16.68,
+  "peak": -1.92,
+  "crest": 16.3,
+  "dur": 19.44
+ },
+ "nova_burst": {
+  "cat": "ability",
+  "target": -20.0,
+  "active": -20.01,
+  "integrated": -20.67,
+  "peak": -5.81,
+  "crest": 15.3,
+  "dur": 2.722
+ },
+ "nova_charge": {
+  "cat": "ability",
+  "target": -22,
+  "active": -22.01,
+  "integrated": -23.69,
+  "peak": -8.36,
+  "crest": 15.8,
+  "dur": 0.57
+ },
+ "overheat": {
+  "cat": "weapon",
+  "target": -21.0,
+  "active": -21.1,
+  "integrated": -24.37,
+  "peak": -6.7,
+  "crest": 16.2,
+  "dur": 0.7
+ },
+ "roar_1": {
+  "cat": "voice",
+  "target": -19.0,
+  "active": -19.0,
+  "integrated": -18.21,
+  "peak": -7.11,
+  "crest": 13.0,
+  "dur": 2.422
+ },
+ "roar_2": {
+  "cat": "voice",
+  "target": -19.0,
+  "active": -19.0,
+  "integrated": -18.65,
+  "peak": -4.25,
+  "crest": 15.1,
+  "dur": 2.392
+ },
+ "roar_3": {
+  "cat": "voice",
+  "target": -19.0,
+  "active": -19.0,
+  "integrated": -18.11,
+  "peak": -3.16,
+  "crest": 16.6,
+  "dur": 2.462
+ },
+ "roar_4": {
+  "cat": "voice",
+  "target": -19.0,
+  "active": -19.0,
+  "integrated": -18.25,
+  "peak": -2.62,
+  "crest": 15.8,
+  "dur": 2.322
+ },
+ "roar_5": {
+  "cat": "voice",
+  "target": -19.0,
+  "active": -19.0,
+  "integrated": -18.99,
+  "peak": -4.39,
+  "crest": 14.1,
+  "dur": 3.502
+ },
+ "roar_deep": {
+  "cat": "voice",
+  "target": -20,
+  "active": -20.0,
+  "integrated": -19.68,
+  "peak": -3.44,
+  "crest": 14.2,
+  "dur": 3.55
+ },
+ "sea_loop": {
+  "cat": "loop",
+  "target": -31,
+  "active": -31.0,
+  "integrated": -30.98,
+  "peak": -15.3,
+  "crest": 14.9,
+  "dur": 7.014
+ },
+ "seeker": {
+  "cat": "weapon",
+  "target": -21.0,
+  "active": -21.01,
+  "integrated": -20.42,
+  "peak": -4.94,
+  "crest": 16.4,
+  "dur": 2.093
+ },
+ "splash_1": {
+  "cat": "impact",
+  "target": -22,
+  "active": -22.0,
+  "integrated": -23.4,
+  "peak": -7.2,
+  "crest": 16.6,
+  "dur": 1.011
+ },
+ "splash_2": {
+  "cat": "impact",
+  "target": -22,
+  "active": -21.99,
+  "integrated": -24.69,
+  "peak": -4.95,
+  "crest": 17.0,
+  "dur": 1.26
+ },
+ "splash_3": {
+  "cat": "impact",
+  "target": -22,
+  "active": -22.03,
+  "integrated": -23.78,
+  "peak": -4.72,
+  "crest": 19.0,
+  "dur": 0.789
+ },
+ "streak_1": {
+  "cat": "stinger",
+  "target": -21.0,
+  "active": -21.05,
+  "integrated": -21.16,
+  "peak": -1.95,
+  "crest": 15.8,
+  "dur": 1.5
+ },
+ "streak_2": {
+  "cat": "stinger",
+  "target": -21.0,
+  "active": -21.08,
+  "integrated": -21.24,
+  "peak": -1.95,
+  "crest": 15.5,
+  "dur": 1.5
+ },
+ "streak_3": {
+  "cat": "stinger",
+  "target": -21.0,
+  "active": -21.07,
+  "integrated": -20.89,
+  "peak": -1.95,
+  "crest": 15.1,
+  "dur": 1.5
+ },
+ "ui_back": {
+  "cat": "ui",
+  "target": -29.0,
+  "active": -29.0,
+  "integrated": -35.89,
+  "peak": -11.93,
+  "crest": 16.5,
+  "dur": 0.091
+ },
+ "ui_click": {
+  "cat": "ui",
+  "target": -29.0,
+  "active": -29.01,
+  "integrated": -38.04,
+  "peak": -7.16,
+  "crest": 24.8,
+  "dur": 0.097
+ },
+ "ui_close": {
+  "cat": "ui",
+  "target": -29.0,
+  "active": -29.08,
+  "integrated": -30.46,
+  "peak": -22.08,
+  "crest": 10.2,
+  "dur": 0.315
+ },
+ "ui_confirm": {
+  "cat": "ui",
+  "target": -29.0,
+  "active": -29.0,
+  "integrated": -29.0,
+  "peak": -19.57,
+  "crest": 10.9,
+  "dur": 0.49
+ },
+ "ui_error": {
+  "cat": "ui",
+  "target": -29.0,
+  "active": -28.95,
+  "integrated": -34.51,
+  "peak": -14.89,
+  "crest": 13.7,
+  "dur": 0.104
+ },
+ "ui_hover": {
+  "cat": "ui",
+  "target": -34,
+  "active": -34.02,
+  "integrated": -43.05,
+  "peak": -16.73,
+  "crest": 18.8,
+  "dur": 0.045
+ },
+ "ui_open": {
+  "cat": "ui",
+  "target": -29.0,
+  "active": -29.01,
+  "integrated": -30.4,
+  "peak": -22.39,
+  "crest": 9.9,
+  "dur": 0.315
+ },
+ "ui_pick": {
+  "cat": "ui",
+  "target": -29.0,
+  "active": -29.0,
+  "integrated": -31.16,
+  "peak": -26.29,
+  "crest": 6.1,
+  "dur": 0.258
+ },
+ "ui_tab": {
+  "cat": "ui",
+  "target": -32,
+  "active": -32.06,
+  "integrated": -41.09,
+  "peak": -19.28,
+  "crest": 13.9,
+  "dur": 0.06
+ },
+ "ui_toggle": {
+  "cat": "ui",
+  "target": -29.0,
+  "active": -29.04,
+  "integrated": -34.31,
+  "peak": -21.31,
+  "crest": 10.9,
+  "dur": 0.136
+ },
+ "warn_lock": {
+  "cat": "alert",
+  "target": -25.0,
+  "active": -25.0,
+  "integrated": -25.06,
+  "peak": -11.49,
+  "crest": 13.0,
+  "dur": 0.38
+ },
+ "warn_seeker": {
+  "cat": "alert",
+  "target": -25.0,
+  "active": -25.0,
+  "integrated": -26.79,
+  "peak": -19.42,
+  "crest": 5.6,
+  "dur": 0.28
+ }
+}

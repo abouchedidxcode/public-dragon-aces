@@ -1,0 +1,24 @@
+{
+  "name": "dragon-aces",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DRAGON ACES: dragon dogfights for up to 10 players in the browser, built on three.js.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node cloudflare/build.mjs dist",
+    "watch": "node cloudflare/build.mjs dist --watch",
+    "serve": "node tools/serve.mjs dist",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "three": "0.186.1",
+    "ws": "8.18.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "license": "MIT"
+}

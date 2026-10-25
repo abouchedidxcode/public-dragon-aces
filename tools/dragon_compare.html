@@ -1,0 +1,116 @@
+<!doctype html>
+<!-- The Blender GLB dragon next to the code-built one (client/js/render/dragon-code.js), same camera, same sky, same sun.
+       node tools/serve.mjs . 8090     then open   http://127.0.0.1:8090/tools/dragon_compare.html?breeds=ember,frost,storm,venom&view=side
+     query: breeds=ember,frost,... (one row per breed; the left column is the GLB, the right one the code dragon)
+            view=side|three|front|top|head|rear|under|flight   (camera presets)  cam=x,y,z,tx,ty,tz  fov
+            w h (size of one cell)  phase thr (wingbeat and effort)  breath=1  far=1 (LOD1)  only=glb|code  bg=rrggbb
+     It sets window.__done once rendered and window.__codeDragonStats (generation time and triangle counts). -->
+<html><head><meta charset="utf-8"><title>Dragon compare</title>
+<style>html,body{margin:0;background:#000;font:12px/1 monospace;color:#fff}canvas{display:block}
+.lab{position:absolute;padding:3px 6px;background:rgba(0,0,0,.55);pointer-events:none}</style>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script></head>
+<body><canvas id="c"></canvas><script type="module">
+import * as THREE from 'three';
+import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
+import { SKY, tameEnvironment } from '/client/js/render/atmosphere.js';
+import { loadDragonModel, loadCodeKit, DragonView } from '/client/js/render/dragon.js';
+const q = new URLSearchParams(location.search);
+const breeds = (q.get('breeds') || q.get('breed') || 'ember').split(',');
+const only = q.get('only');
+const cols = only ? 1 : 2;
+const W = +q.get('w') || 640, H = +q.get('h') || 360;
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W * cols, H * breeds.length, false);
+canvas.style.width = W * cols + 'px'; canvas.style.height = H * breeds.length + 'px';
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.85;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.setScissorTest(true);
+const scene = new THREE.Scene();
+const env = await new HDRLoader().setDataType(THREE.FloatType).loadAsync('/client/assets/env.hdr');
+env.mapping = THREE.EquirectangularReflectionMapping; tameEnvironment(env);
+const pm = new THREE.PMREMGenerator(renderer);
+scene.environment = pm.fromEquirectangular(env).texture; scene.environmentIntensity = 0.9;
+scene.background = new THREE.Color('#' + (q.get('bg') || '8a9bb0'));
+const sun = new THREE.DirectionalLight(SKY.sunColor, 4.2);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+const sc = sun.shadow.camera; sc.left = -20; sc.right = 20; sc.top = 20; sc.bottom = -20; sc.near = 10; sc.far = 900;
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.05; sun.shadow.radius = 3;
+scene.add(sun, sun.target);
+
+const VIEWS = {
+  three: '16,7,-17,0,0,-0.5,40', side: '27,3.5,-1,0,0,-1.2,38', front: '7,2.5,-25,0,0.2,-2,38', top: '0,38,-1,0,0,-1,40',
+  head: '6.5,2.4,-14.8,0,0.6,-7.4,26', rear: '-11,6,17,0,0,-3,40', under: '11,-9,-12,0,0,-1,42', flight: '15,6,-19,0,0,-1,44',
+};
+const view = q.get('view') || 'three';
+const spec = (q.get('cam') ? q.get('cam') + ',' + (q.get('fov') || 40) : VIEWS[view] || VIEWS.three).split(',').map(Number);
+const cam = new THREE.PerspectiveCamera(+q.get('fov') || spec[6], W / H, 0.1, 500);
+cam.position.set(spec[0], spec[1], spec[2]); cam.lookAt(spec[3], spec[4], spec[5]);
+sun.target.position.set(spec[3], spec[4], spec[5]); sun.position.copy(SKY.sunDir).multiplyScalar(300).add(sun.target.position);
+
+await loadDragonModel('/client/assets/dragon.glb'); // (with ?dragon=code in this page's own URL it loads the code dragon instead)
+const codeKit = await loadCodeKit();
+const flight = view === 'flight';
+const pose = { throttle: +(q.get('thr') || (flight ? 0.9 : 0.5)), yawRate: 0, lookYaw: +(q.get('look') || 0), breath: q.get('breath') === '1', firing: false };
+const mk = (breed, kit) => {
+  const v = new DragonView(breed, kit);
+  scene.add(v.root);
+  if (q.get('far') === '1') v.setFar(true);
+  v.phase = +(q.get('phase') || (flight ? 1.4 : 0.3)); v.flapAmp = flight ? 0.9 : 0.5;
+  for (let i = 0; i < 3; i++) v.animate(0.01, pose);
+  v.phase = +(q.get('phase') || (flight ? 1.4 : 0.3));
+  v.animate(0.0001, pose);
+  v.setLight(1, q.get('breath') === '1' ? 1 : 0, 0);
+  const hide = (q.get('hide') || '').split(',');
+  v.model.traverse((o) => { if (o.isSkinnedMesh && hide.some((h) => h && o.name.toLowerCase().startsWith(h))) o.visible = false; });
+  if (q.get('debug')) v.model.traverse((o) => { if (o.isSkinnedMesh && !(kit === null && false)) o.material = new THREE.MeshNormalMaterial({ wireframe: q.get('debug') === 'wire', side: THREE.DoubleSide }); });
+  v.root.visible = false;
+  return v;
+};
+const rows = breeds.map((b) => ({ breed: b, glb: only === 'code' ? null : mk(b, null), code: only === 'glb' ? null : mk(b, codeKit) }));
+const pending = [];
+for (let r = 0; r < rows.length; r++) {
+  for (let c = 0; c < cols; c++) {
+    const kind = only || (c === 0 ? 'glb' : 'code');
+    pending.push({ r, c, kind, v: rows[r][kind] });
+  }
+}
+function drawAll() {
+  for (const p of pending) {
+    for (const row of rows) for (const k of ['glb', 'code']) if (row[k]) row[k].root.visible = false;
+    p.v.root.visible = true;
+    p.v.root.updateMatrixWorld(true);
+    const x = p.c * W, y = (rows.length - 1 - p.r) * H;
+    renderer.setViewport(x, y, W, H); renderer.setScissor(x, y, W, H);
+    renderer.render(scene, cam);
+  }
+}
+for (let i = 0; i < 2; i++) drawAll();
+if (q.get('bench')) {
+  // per-frame cost of each dragon filling its cell (software GL here, so only the ratio means anything)
+  const gl = renderer.getContext(), px = new Uint8Array(4), res = {};
+  for (const p of pending) {
+    for (const row of rows) for (const kk of ['glb', 'code']) if (row[kk]) row[kk].root.visible = false;
+    p.v.root.visible = true;
+    p.v.root.updateMatrixWorld(true);
+    const x = p.c * W, y = (rows.length - 1 - p.r) * H;
+    renderer.setViewport(x, y, W, H); renderer.setScissor(x, y, W, H);
+    renderer.render(scene, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    const t0 = performance.now(), N = +q.get('bench');
+    for (let i = 0; i < N; i++) renderer.render(scene, cam);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    res[p.kind + '/' + rows[p.r].breed] = (performance.now() - t0) / N;
+  }
+  window.__bench = res;
+  console.log('bench ms/frame ' + JSON.stringify(res));
+}
+for (const p of pending) {
+  const d = document.createElement('div'); d.className = 'lab';
+  d.textContent = (p.kind === 'glb' ? 'GLB (Blender)' : 'code') + ' / ' + rows[p.r].breed;
+  d.style.left = p.c * W + 'px'; d.style.top = p.r * H + 'px';
+  document.body.appendChild(d);
+}
+window.__codeDragonStats = codeKit.stats; console.log(JSON.stringify(codeKit.stats));
+window.__done = true;
+</script></body></html>

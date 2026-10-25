@@ -1,0 +1,253 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Dragon Aces audio harness</title>
+<!--
+  Renders scripted scenes through the real client/js/audio.js into an OfflineAudioContext (driven by
+  tools/audio_render.mjs, analysed by tools/audio_analyze.py). The scene calls the same public methods the game
+  calls (fireball, explosion, update ...), at 31.25 Hz like a game frame, with a seeded Math.random and a virtual
+  clock so the result is repeatable and does not depend on wall time.
+-->
+<script type="module">
+const SR = 48000;
+const STEP = 12 * 128; // samples per scripted frame (32 ms)
+
+// ------------------------------------------------------------ determinism
+function mulberry(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ------------------------------------------------------------ scenes
+// pl(t): the player's state. ev(t, dt, A, R, S): emits the sounds due in this frame. S is the scene scratch.
+const v3 = (x, y, z) => ({ x, y, z });
+const SCENES = {
+  // steady level flight, a wingbeat now and then
+  cruise: {
+    dur: 26,
+    pl: (t) => ({ speed: 88 + 4 * Math.sin(t * 0.4), boost: false, turn: 0.05 + 0.04 * Math.sin(t * 0.3), climb: 0, ground: -1, inCloud: 0 }),
+    ev(t, dt, A, R, S) {
+      if (t >= (S.flap || 0)) { A.flap(0.5 + 0.2 * R(), null); S.flap = t + 1.1 + R() * 0.3; }
+    },
+    music: 'battle',
+  },
+  // boost, a long dive, a hard pull-out and a cloud
+  dive: {
+    dur: 34,
+    pl(t) {
+      const ph = (a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));
+      const boost = t > 5 && t < 15;
+      const speed = 90 + 85 * ph(5, 8) - 70 * ph(15, 19) + 20 * ph(24, 28) - 20 * ph(28, 32);
+      const dive = ph(7, 9) - ph(14, 16);
+      const tight = Math.max(0, Math.sin(Math.PI * ph(15.5, 19.5)));
+      const roll = 0.25 * Math.sin(t * 0.7);
+      const cloud = Math.max(0, Math.min(1, 1.4 - Math.abs(t - 26) * 0.5));
+      return { speed, boost, turn: 0.05 + 1.9 * tight + 0.6 * ph(24, 26) * (1 - ph(26, 28)) + Math.abs(roll) * 0.5, climb: -0.8 * dive + 0.5 * tight, ground: t > 18 && t < 22 ? 40 + (t - 18) * 20 : -1, inCloud: cloud };
+    },
+    ev(t, dt, A, R, S) {
+      if (t >= (S.flap || 0)) { A.flap(0.6 + 0.2 * R(), null); S.flap = t + 0.9 + R() * 0.2; }
+      // a dragon crosses our path while we are fast, and one more after the pull-out
+      if (!S.p1 && t > 10.0) { S.p1 = 1; A.passBy && A.passBy(v3(30, 0, 0), 150); }
+      if (!S.p2 && t > 21) { S.p2 = 1; A.passBy && A.passBy(v3(-22, 5, 0), 110); }
+      if (t > 9 && !S.boostRoar) { S.boostRoar = 1; }
+    },
+    music: 'battle',
+  },
+  // ten dragons around us, firing in bursts, hits, abilities and a couple of kills
+  dogfight: {
+    dur: 40,
+    pl: (t) => ({ speed: 100 + 25 * Math.sin(t * 0.5), boost: Math.sin(t * 0.37) > 0.8, turn: 0.35 + 0.5 * Math.abs(Math.sin(t * 0.9)), climb: 0.2 * Math.sin(t * 0.6), ground: -1, inCloud: 0, breath: Math.sin(t * 0.8) > 0.92, remoteBreath: Math.max(0, Math.sin(t * 0.55)) * 0.35 }),
+    ev(t, dt, A, R, S, P) {
+      S.d = S.d || Array.from({ length: 10 }, (_, i) => ({ a: i * 0.63 + R(), r: 90 + R() * 800, y: (R() - 0.5) * 160, next: R() * 1.5, burst: 0, nextFlap: R() }));
+      if (t >= (S.me || 0)) { A.fireball(null); S.me = t + 0.28 + (R() < 0.15 ? 0.5 : 0); }
+      if (t >= (S.myFlap || 0)) { A.flap(0.7, null); S.myFlap = t + 0.8; }
+      for (const d of S.d) {
+        d.a += dt * 0.15; d.r += (R() - 0.5) * 6;
+        const p = v3(Math.cos(d.a) * d.r, 800 + d.y, -P.dist + Math.sin(d.a) * d.r);
+        if (d.burst <= 0 && R() < dt * 0.35) d.burst = 3 + Math.floor(R() * 6);
+        if (d.burst > 0 && t >= d.next) { A.fireball(p); d.burst--; d.next = t + 0.28; if (R() < 0.05) A.seeker(p); }
+        if (t >= d.nextFlap) { A.flap(0.5 + R() * 0.3, p); d.nextFlap = t + 0.7 + R() * 0.4; }
+        if (R() < dt * 0.5) A.impact(v3(p.x + (R() - 0.5) * 200, p.y, p.z + (R() - 0.5) * 200));
+      }
+      if (R() < dt * 0.9) A.impact(v3((R() - 0.5) * 120, 800 + (R() - 0.5) * 60, -P.dist - 40 - R() * 60));
+      if (R() < dt * 0.25) A.hitMarker();
+      if (R() < dt * 0.1) A.hurt();
+      if (t > 8 && !S.k1) { S.k1 = 1; A.explosion(v3(180, 820, -P.dist - 300), 1.2); A.hitMarker(true); A.kill(); A.roar(null, 1); }
+      if (t > 14 && !S.k2) { S.k2 = 1; A.explosion(v3(-120, 780, -P.dist - 120), 1.2); A.roar(v3(-100, 790, -P.dist - 150), 1.05); }
+      if (t > 20 && !S.k3) { S.k3 = 1; A.streak(1); A.kill(); A.explosion(v3(60, 810, -P.dist - 220), 1.2); }
+      if (t > 11 && !S.a1) { S.a1 = 1; A.ability('nova', 'charge', v3(250, 800, -P.dist - 250), 0.45); }
+      if (t > 11.5 && !S.a2) { S.a2 = 1; A.ability('nova', 'fire', v3(250, 800, -P.dist - 250), 0.45); }
+      if (t > 17 && !S.a3) { S.a3 = 1; A.ability('chain', 'charge', v3(-300, 800, -P.dist - 100), 0.3); }
+      if (t > 17.4 && !S.a4) { S.a4 = 1; A.ability('chain', 'fire', v3(-250, 800, -P.dist - 100), 0.3); }
+      if (t > 25 && !S.a5) { S.a5 = 1; A.ability('acid', 'charge', v3(150, 790, -P.dist - 300), 0.6); }
+      if (t > 25.6 && !S.a6) { S.a6 = 1; A.ability('acid', 'fire', v3(150, 790, -P.dist - 400), 0.6); }
+      if (t > 30 && !S.a7) { S.a7 = 1; A.ability('inferno', 'fire', v3(100, 800, -P.dist - 150), 0.5); }
+      if (t > 33 && !S.h) { S.h = 1; A.heal(); }
+      if (R() < dt * 0.6 && t > 3) A.warning && R() < 0.3 && A.warning();
+    },
+    music: 'battle',
+  },
+  // wind only: a cloud at 6 to 9 s, the pause menu from 13 to 16 s
+  gates: {
+    dur: 22,
+    pl: (t) => ({ speed: 110, boost: false, turn: 0.2, climb: 0, ground: -1, inCloud: t > 6 && t < 9 ? 0.4 : 0 }),
+    ev(t, dt, A, R, S) {
+      if (t > 13 && !S.p1) { S.p1 = 1; A.setMuffled(true); }
+      if (t > 16 && !S.p2) { S.p2 = 1; A.setMuffled(false); }
+    },
+  },
+  // a big explosion close by, then our own death
+  boom: {
+    dur: 22,
+    pl: (t) => ({ speed: 95, boost: false, turn: 0.1, climb: 0, ground: -1, inCloud: 0 }),
+    ev(t, dt, A, R, S, P) {
+      if (t >= (S.flap || 0)) { A.flap(0.6, null); S.flap = t + 1.1; }
+      if (t > 6 && !S.e1) { S.e1 = 1; A.explosion(v3(40, 800, -P.dist - 70), 1.3); }
+      if (t > 6.2 && !S.e1b) { S.e1b = 1; A.roar(v3(60, 800, -P.dist - 120), 1); }
+      if (t > 11 && !S.e2) { S.e2 = 1; A.hurt(); A.explosion(v3(0, 800, -P.dist), 1.2); A.death && A.death(); }
+    },
+    music: 'battle',
+  },
+};
+
+// Every event the game plays, one at a time, 3.5 s apart, own / near / mid / far (no wind, no music): the
+// loudness of each at the output tells whether the mix is consistent. The schedule goes out as scene.meta.
+{
+  const at = (d) => v3(d * 0.5, 800, -d * 0.866);
+  const E = [];
+  const add = (label, fn) => E.push({ label, fn });
+  const dists = (name, ds, call) => { for (const d of ds) add(`${name}@${d || 'own'}`, (A) => call(A, d ? at(d) : null)); };
+  dists('fireball', [0, 40, 300, 1500], (A, p) => A.fireball(p));
+  dists('seeker', [0, 40, 300, 1500], (A, p) => A.seeker(p));
+  dists('flap', [0, 40, 300], (A, p) => A.flap(0.8, p));
+  dists('explosion', [40, 300, 1500, 4000], (A, p) => A.explosion(p, 1.2));
+  dists('explosion_big', [40, 300, 1500], (A, p) => A.explosion(p, 1.3));
+  dists('impact', [40, 300, 1500], (A, p) => A.impact(p));
+  dists('roar', [0, 40, 300, 1500], (A, p) => A.roar(p, 1));
+  dists('splash', [40, 300, 1500], (A, p) => A.splash(p));
+  dists('dodge', [0], (A) => A.dodge());
+  add('roar_deep@own', (A) => A.roar(null, 0.8));
+  add('hurt@own', (A) => A.hurt());
+  for (const [k, ph] of [['inferno', 'fire'], ['nova', 'charge'], ['nova', 'fire'], ['chain', 'charge'], ['chain', 'fire'], ['chain', 'miss'], ['acid', 'charge'], ['acid', 'fire']]) {
+    for (const d of [0, 40, 300, 1500]) add(`${k}_${ph}@${d || 'own'}`, (A) => A.ability(k, ph, d ? at(d) : null, 0.45));
+  }
+  for (const n of ['hover', 'click', 'confirm', 'back', 'open', 'close', 'error', 'toggle', 'pick', 'tab']) add(`ui_${n}`, (A) => A.ui(n));
+  add('hit', (A) => A.hitMarker(false));
+  add('hit_kill', (A) => A.hitMarker(true));
+  add('kill', (A) => A.kill());
+  for (const l of [1, 2, 3]) add(`streak_${l}`, (A) => A.streak(l));
+  add('heal', (A) => A.heal());
+  add('warn_seeker', (A) => A.warning());
+  add('heartbeat', (A) => A.heartbeat(1));
+  add('overheat', (A) => A.overheat && A.overheat());
+  add('chill', (A) => A.chill && A.chill());
+  add('passby', (A) => A.passBy && A.passBy(v3(25, 0, 0), 160));
+  SCENES.catalog = {
+    dur: 2 + E.length * 3.5,
+    bed: false,
+    meta: E.map((e, i) => ({ label: e.label, t0: 1 + i * 3.5, t1: 1 + i * 3.5 + 3.4 })),
+    pl: () => ({ speed: 0, boost: false, turn: 0, climb: 0, ground: -1, inCloud: 0 }),
+    ev(t, dt, A, R, S) {
+      S.i = S.i || 0;
+      if (S.i < E.length && t >= 1 + S.i * 3.5) E[S.i++].fn(A);
+    },
+  };
+}
+
+// ------------------------------------------------------------ run
+async function render(sceneName, variant, modUrl) {
+  const scene = SCENES[sceneName];
+  const R0 = mulberry(1234);
+  Math.random = mulberry(99);
+  const total = Math.ceil(scene.dur * SR / STEP) * STEP;
+  const ctx = new OfflineAudioContext(2, total, SR);
+  // the game's own timers run on the audio clock here
+  const timers = [];
+  let tid = 1;
+  window.setTimeout = (fn, ms) => { timers.push({ id: tid, at: ctx.currentTime + ms / 1000, fn }); return tid++; };
+  window.clearTimeout = (id) => { const i = timers.findIndex((x) => x.id === id); if (i >= 0) timers.splice(i, 1); };
+  window.setInterval = () => 0;
+  window.clearInterval = () => {};
+  window.AudioContext = function () { return ctx; };
+  const mod = await import(modUrl);
+  const audio = new mod.Audio();
+  audio.start();
+  for (let i = 0; i < 400 && !(audio.ready || audio.windLow); i++) await new Promise((r) => setTimeout0(r));
+  if (audio.ready) await audio.ready;
+  else await new Promise((r) => setTimeout0(r, 300));
+
+  const withEvents = variant !== 'wind';
+  if (withEvents && scene.music) {
+    const ab = await (await fetch('/assets/audio/music_battle.mp3')).arrayBuffer();
+    const buf = await ctx.decodeAudioData(ab);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const g = ctx.createGain();
+    g.gain.value = (mod.TRACKS && mod.TRACKS.battle.gain) || 0.5;
+    src.connect(g).connect(audio.musicBus || audio.buses.music);
+    src.start(0, 30);
+  }
+
+  // the API surface a game frame uses; missing methods fall back so old and new engines both run
+  const A = new Proxy({}, {
+    get: (_, k) => {
+      if (k === 'ability') return (kind, ph, at, w) => (audio.ability ? audio.ability(kind, ph, at, { w }) : legacyAbility(audio, kind, ph, at, w));
+      if (k === 'passBy') return audio.passBy ? (rel, rs) => audio.passBy(rel, rs) : null;
+      if (k === 'death') return audio.death ? () => audio.death() : null;
+      if (typeof audio[k] !== 'function') return null; // an older engine without this call
+      return (...a) => (withEvents ? audio[k](...a) : undefined);
+    },
+  });
+  function legacyAbility(au, kind, ph, at, w) {
+    if (!withEvents) return;
+    if (kind === 'nova') { if (ph === 'charge') au.tone({ freq: 300, type: 'sine', dur: w, gain: 0.1, slide: 1500, at }); else { au.explosion(at, 1.1); au.tone({ freq: 1400, type: 'sine', dur: 0.5, gain: 0.1, slide: 300, at }); } }
+    if (kind === 'chain') { if (ph === 'charge') au.tone({ freq: 120, type: 'sawtooth', dur: w, gain: 0.1, slide: 1200, at }); else { au.tone({ freq: 90, type: 'sawtooth', dur: 0.25, gain: 0.18, slide: 900, at }); au.impact(at); } }
+    if (kind === 'acid') { if (ph === 'charge') au.tone({ freq: 220, type: 'triangle', dur: 0.3, gain: 0.12, slide: 90, at }); else au.tone({ freq: 160, type: 'triangle', dur: 0.6, gain: 0.14, slide: 70, at }); }
+    if (kind === 'inferno') au.roar(at, 0.7);
+  }
+
+  const P = { dist: 0 };
+  const probe = (window.__probe = []);
+  const gv = (n) => (n && n.gain ? n.gain.value : 1);
+  const q = { x: 0, y: 0, z: 0, w: 1 };
+  const S = {};
+  const frames = total / STEP;
+  const dt = STEP / SR;
+  let fail;
+  const failed = new Promise((_, rej) => { fail = rej; });
+  const frame = (k) => {
+   try {
+    const t = ctx.currentTime;
+    for (let i = timers.length - 1; i >= 0; i--) if (timers[i].at <= t) timers.splice(i, 1)[0].fn();
+    const st = scene.pl(t);
+    audio.setListener({ x: 0, y: 800, z: -P.dist }, q);
+    if (withEvents) scene.ev(t, dt, A, R0, S, P);
+    if (scene.bed !== false) audio.update({ ...st, breath: !!st.breath, remoteBreath: st.remoteBreath || 0 });
+    P.dist += st.speed * dt;
+    probe.push([+t.toFixed(3), gv(audio.musicDuck), gv(audio.ambDuck), gv(audio.windCut), audio.hush ? audio.hush.frequency.value : 22000, audio.limiter ? audio.limiter.voices.size : (audio.voices || 0), audio.glue ? audio.glue.reduction : 0, audio.peakLimiter ? audio.peakLimiter.reduction : 0]);
+    if (k + 1 < frames) ctx.suspend((k + 1) * dt).then(() => { frame(k + 1); ctx.resume(); });
+   } catch (e) {
+    fail(new Error(`frame ${k}: ${e.stack || e}`)); // an exception in a frame would otherwise leave the render waiting for ever
+   }
+  };
+  frame(0);
+  return Promise.race([ctx.startRendering(), failed]);
+}
+const setTimeout0 = (fn, ms = 0) => realSetTimeout(fn, ms);
+const realSetTimeout = window.setTimeout.bind(window);
+window.__render = async (scene, variant, modUrl) => {
+  const rendered = await render(scene, variant, modUrl);
+  const L = rendered.getChannelData(0), Rr = rendered.getChannelData(1);
+  const inter = new Float32Array(L.length * 2);
+  for (let i = 0; i < L.length; i++) { inter[2 * i] = L[i]; inter[2 * i + 1] = Rr[i]; }
+  const bytes = new Uint8Array(inter.buffer);
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return { sr: rendered.sampleRate, frames: L.length, b64: btoa(s), meta: SCENES[scene].meta || null, probe: window.__probe };
+};
+window.__ready = true;
+</script>
